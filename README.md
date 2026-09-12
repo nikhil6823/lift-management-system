@@ -50,16 +50,17 @@ The initial public registration creates the sole bootstrap administrator. After 
 - Configure Cloudinary before accepting real receipts or documents.
 - Add audit logging, rate limiting, email delivery, and a migration/seed strategy before a public launch.
 
-## Deploying to Vercel and Render
+## Deploying to Vercel and Railway
 
-The repository includes `render.yaml` for the API and `client/vercel.json` for React Router history fallback.
+The repository includes `server/railway.json` for the API and `client/vercel.json` for React Router history fallback.
 
-1. Create a MongoDB Atlas database and allow the Render service to connect. Copy its connection string.
-2. Create a Render Blueprint from this repository. Render will use `server/` as the Node service root and `/health` as its health check.
-3. In Render, set `MONGO_URI`, `CLIENT_URL`, and all `SMTP_*` values. Add Cloudinary values if uploads are required. Keep the generated `JWT_SECRET` private.
-4. Deploy the API and note its HTTPS URL, for example `https://lift-management-api.onrender.com`.
-5. Import the repository into Vercel with `client` as the Root Directory. Set `VITE_API_URL` to `<API_URL>/api` and `VITE_SOCKET_URL` to `<API_URL>`.
-6. After Vercel provides its HTTPS URL, set Render `CLIENT_URL` to that exact origin and redeploy the API.
-7. Configure SMTP before using email verification or two-step login. Do not use development secrets or commit `.env` files.
+1. Create a MongoDB Atlas database and copy its connection string.
+2. In Railway, create a new project and deploy from this GitHub repository. Set the service root directory to `/server`.
+3. Railway will use `server/railway.json`, install dependencies, run `npm start`, and check `/health`.
+4. Add these Railway variables: `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, and all `SMTP_*` values. Add Cloudinary values if uploads are required.
+5. Generate a Railway public HTTPS domain for the API, for example `https://lift-management-api.up.railway.app`.
+6. Import the repository into Vercel with `client` as the Root Directory. Set `VITE_API_URL` to `<RAILWAY_URL>/api` and `VITE_SOCKET_URL` to `<RAILWAY_URL>`.
+7. After Vercel provides its HTTPS URL, set Railway `CLIENT_URL` to that exact origin and redeploy the API.
+8. Configure SMTP before using email verification or two-step login. Do not use development secrets or commit `.env` files.
 
 For a manual Vercel setup, use `client` as the project root, `npm run build` as the build command, and `dist` as the output directory.
