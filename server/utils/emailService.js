@@ -1,45 +1,9 @@
-import nodemailer from 'nodemailer';
-import dns from 'node:dns';
+import { Resend } from 'resend';
 
-const hasSmtp = Boolean(
-  process.env.SMTP_HOST &&
-  process.env.SMTP_USER &&
-  process.env.SMTP_PASSWORD
-);
+const hasResend = Boolean(process.env.RESEND_API_KEY);
 
-// Force DNS resolution to IPv4
-const lookup = (hostname, options, callback) => {
-  dns.lookup(
-    hostname,
-    {
-      family: 4,
-      all: false,
-    },
-    callback
-  );
-};
-
-const transporter = hasSmtp
-  ? nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-
-      // Gmail port 587 uses STARTTLS
-      secure: false,
-      requireTLS: true,
-
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-      },
-
-      // Explicitly force IPv4 DNS lookup
-      lookup,
-
-      connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 30000,
-    })
+const resend = hasResend
+  ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
 export async function sendSecurityCode({ email, name, purpose, code }) {
@@ -50,33 +14,47 @@ export async function sendSecurityCode({ email, name, purpose, code }) {
 
   const message =
     purpose === 'email-verification'
-      ? `Hello ${name},
+      ? `
+        <h2>Verify your PV Tech Elevators account</h2>
+        <p>Hello ${name},</p>
+        <p>Your account verification code is:</p>
+        <h1>${code}</h1>
+        <p>This code expires in 10 minutes.</p>
+        <p>If you did not create this account, you can ignore this email.</p>
+      `
+      : `
+        <h2>PV Tech Elevators Sign-in Verification</h2>
+        <p>Hello ${name},</p>
+        <p>Your sign-in verification code is:</p>
+        <h1>${code}</h1>
+        <p>This code expires in 10 minutes.</p>
+        <p>If you did not try to sign in, change your password and contact an administrator.</p>
+      `;
 
-Your account verification code is ${code}. It expires in 10 minutes.
-
-If you did not create this account, you can ignore this email.`
-      : `Hello ${name},
-
-Your sign-in verification code is ${code}. It expires in 10 minutes.
-
-If you did not try to sign in, change your password and contact an administrator.`;
-
-  if (!transporter) {
+  if (!resend) {
     console.warn(
-      '[security] SMTP is not configured; security email was not sent.'
+      '[security] RESEND_API_KEY is not configured; security email was not sent.'
     );
+
     return false;
   }
 
   try {
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: email,
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'PV Tech Elevators <onboarding@resend.dev>',
+      to: [email],
       subject,
-      text: message,
+      html: message,
     });
 
-    console.log(`[security] Email successfully sent to ${email}`);
+    if (error) {
+      console.error('[security] Resend error:', error);
+      throw new Error(error.message);
+    }
+
+    console.log(
+      `[security] Email successfully sent to ${email}. ID: ${data?.id}`
+    );
 
     return true;
   } catch (error) {
@@ -86,5 +64,5 @@ If you did not try to sign in, change your password and contact an administrator
 }
 
 export function isEmailDeliveryConfigured() {
-  return Boolean(transporter);
+  return Boolean(resend);
 }
