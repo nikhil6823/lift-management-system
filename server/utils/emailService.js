@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 
 const hasSmtp = Boolean(
   process.env.SMTP_HOST &&
@@ -6,12 +7,24 @@ const hasSmtp = Boolean(
   process.env.SMTP_PASSWORD
 );
 
+// Force DNS resolution to IPv4
+const lookup = (hostname, options, callback) => {
+  dns.lookup(
+    hostname,
+    {
+      family: 4,
+      all: false,
+    },
+    callback
+  );
+};
+
 const transporter = hasSmtp
   ? nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT || 587),
 
-      // Port 587 uses STARTTLS
+      // Gmail port 587 uses STARTTLS
       secure: false,
       requireTLS: true,
 
@@ -20,8 +33,8 @@ const transporter = hasSmtp
         pass: process.env.SMTP_PASSWORD,
       },
 
-      // Force IPv4 instead of IPv6
-      family: 4,
+      // Explicitly force IPv4 DNS lookup
+      lookup,
 
       connectionTimeout: 20000,
       greetingTimeout: 20000,
