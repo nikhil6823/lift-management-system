@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" role="img" aria-labelledby="title desc">
+  <title id="title">PV Tech Elevators</title>
+  <desc id="desc">Blue elevator tower with a red PV Tech Elevators wordmark.</desc>
+  <rect width="1000" height="650" fill="#fff"/>
+  <g transform="translate(54 52)">
+    <path fill="#0b6ec2" d="M287 0h102l-16 84h35l-15 75h-42l-5 44h-61l-4-44h-42l-15-75h35L247 0h40Zm-53 244h61v230h-61V244Zm95 0h61v230h-61V244Zm-179 0h60v230h-60V244Zm273 0h60v230h-60V244ZM97 520h450v42H97v-42Zm65-276 102-161 102 161H162Zm-4-42h208l-102-161-106 161Z"/>
+    <path fill="#d81f2e" d="M34 574h502v24H34zM45 608h480v18H45z"/>
+  </g>
+  <text x="610" y="270" fill="#0b6ec2" font-family="Arial, sans-serif" font-size="78" font-weight="800" letter-spacing="2">PV TECH</text>
+  <text x="613" y="350" fill="#d81f2e" font-family="Arial, sans-serif" font-size="64" font-weight="800" letter-spacing="1">ELEVATORS</text>
+  <text x="615" y="400" fill="#0b6ec2" font-family="Arial, sans-serif" font-size="20" letter-spacing="6">LIFT MANAGEMENT</text>
+</svg>

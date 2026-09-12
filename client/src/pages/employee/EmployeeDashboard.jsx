@@ -1,0 +1,10 @@
+import { useEffect, useState } from 'react';
+import { CheckCircle2, ClipboardList, MapPin } from 'lucide-react';
+import { ServiceRequestCard } from '../../components/service/ServiceRequestCard';
+import { Loader } from '../../components/common/Loader';
+import { getAttendance } from '../../services/attendanceService';
+import { getServiceRequests } from '../../services/serviceRequestService';
+import { useAuth } from '../../hooks/useAuth';
+
+export default function EmployeeDashboard() { const { user } = useAuth(); const [state, setState] = useState({ loading: true, jobs: [], attendance: [] }); useEffect(() => { Promise.all([getServiceRequests(), getAttendance()]).then(([jobs, attendance]) => setState({ loading: false, jobs, attendance })).catch(() => setState((value) => ({ ...value, loading: false }))); }, []); if (state.loading) return <Loader label="Loading your workspace" />; const active = state.jobs.filter((job) => !['resolved', 'closed'].includes(job.status)); const today = new Date().toDateString(); const todayRecord = state.attendance.find((record) => new Date(record.workDate).toDateString() === today); return <><div className="page-heading"><div><span className="eyebrow">Field workspace</span><h1>Hello, {user?.name?.split(' ')[0]}.</h1><p>Keep your route moving and your work record accurate.</p></div></div><div className="stats-grid employee-stats"><div className="stat-card teal"><ClipboardList /><div><span>Active jobs</span><strong>{active.length}</strong></div></div><div className="stat-card purple"><CheckCircle2 /><div><span>Today’s attendance</span><strong>{todayRecord?.clockIn ? 'In' : 'Not in'}</strong></div></div><div className="stat-card orange"><MapPin /><div><span>Next stop</span><strong className="smaller">{active[0]?.lift?.building || 'No assignment'}</strong></div></div></div><section><div className="section-title"><h2>Your current jobs</h2><span>{active.length} active</span></div><div className="card-grid service-grid">{active.map((job) => <ServiceRequestCard key={job._id} request={job} />)}{!active.length && <p className="empty-state">No active jobs assigned. Check back soon.</p>}</div></section></>; }
+
