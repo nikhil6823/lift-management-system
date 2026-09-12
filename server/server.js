@@ -20,6 +20,7 @@ import invoiceRoutes from './routes/invoiceRoutes.js';
 import { registerLocationSocket } from './sockets/locationSocket.js';
 
 const app = express();
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 const configuredOrigins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',').map((origin) => origin.trim()).filter(Boolean);
 const origins = process.env.NODE_ENV === 'production'
