@@ -13,6 +13,7 @@ const transporter = hasSmtp
 
       // Port 587 uses STARTTLS
       secure: false,
+      requireTLS: true,
 
       auth: {
         user: process.env.SMTP_USER,
